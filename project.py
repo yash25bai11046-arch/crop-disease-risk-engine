@@ -19,7 +19,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # MODEL 1st : CNN (ResNet50V2) for Disease Classifier 
-MODEL_PATH = "crop_disease_resnet50v2.keras"
+MODEL_PATH = "resnet50v2_augmented_field.keras"
 LABELS_PATH = "class_labels.json"
 @st.cache_resource
 def load_resnet_model():
