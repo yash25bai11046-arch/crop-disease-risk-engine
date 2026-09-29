@@ -1,4 +1,4 @@
-#Python liberaries used to develop the project
+#liberaries used to develop
 import streamlit as st
 import tensorflow as tf
 import numpy as np
