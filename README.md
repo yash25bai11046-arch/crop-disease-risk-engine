@@ -1,6 +1,8 @@
 # crop-disease-risk-engine
+
 It uses dual-pathway crop disease diagnostics combining ResNet50V2 deep learning with real-time microclimate risk modeling and prevention measures along with agronomic spray advisories via Streamlit.
-# 🌾 Crop Disease Risk Engine & Diagnostic Advisory
+
+## 🌾 Crop Disease Risk Engine & Diagnostic Advisory
 
 An end-to-end ag-tech diagnostic platform combining deep learning vision models with localized microclimate risk modeling. The engine diagnoses foliar crop pathologies and projects secondary field outbreak risks to recommend targeted agronomic interventions.
 
@@ -69,12 +71,14 @@ The engine operates on a **dual-pathway evaluation pipeline**:
 ## 📦 Local Installation & Setup
 
 ### 1. Clone the Repository
+
 ```bash
 git clone [https://github.com/yash25bai11046-arch/crop-disease-risk-engine.git](https://github.com/yash25bai11046-arch/crop-disease-risk-engine.git)
 cd crop-disease-risk-engine
 ```
 
 ### 2. Create Virtual Environment & Install Dependencies
+
 ```bash
 python -m venv venv
 # On Windows:
@@ -88,7 +92,9 @@ pip install -r requirements.txt
 *(Alternatively, install packages directly: `pip install streamlit tensorflow numpy requests plotly Pillow`)*
 
 ### 3. Model Weights Setup
+
 Place your trained `.keras` model file in the project root directory:
+
 ```text
 crop-disease-risk-engine/
 ├── project.py
@@ -99,7 +105,9 @@ crop-disease-risk-engine/
 ```
 
 ### 4. Run the Application
+
 ```bash
-streamlit run project.py
+python -m streamlit run project.py
 ```
+
 ---
