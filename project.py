@@ -121,6 +121,11 @@ def fetch_live_weather(city_name: str):
 # Sidebar: User Controls & Inputs
 st.sidebar.title("⚙️ Input leaf image and location")
 uploaded_file = st.sidebar.file_uploader("Upload Photo of the Leaf want to Analyze", type=["jpg", "jpeg", "png"])
+if uploaded_file is not None:
+    sidebar_preview = Image.open(uploaded_file)
+    _, center_col, _ = st.sidebar.columns([1, 2, 1])
+    with center_col:
+        st.image(sidebar_preview, caption="Uploaded Leaf Sample", width=100)
 st.sidebar.markdown("---")
 st.sidebar.subheader("📍🗺️ Set Your Location for Analysis")
 city_input = st.sidebar.text_input("Enter Your Location (City):", value="Bhopal")
@@ -164,27 +169,29 @@ if run_pipeline:
     #summary of model 1
             st.markdown(f"""
             <div class="metric-card">
-                <p style="color:#6c757d; font-size:13px; margin:0;">MODEL 1: CNN Model Prediction</p>
+                <p style="color:#6c757d; font-size:13px; margin:0;">CNN Model Prediction</p>
                 <h3 style="color:#212529; margin:4px 0;">{disease_info['name']}</h3>
                 <p style="margin:2px 0;"><b>Category of the Disease:</b> {disease_info['type']}</p>
                 <p style="margin:2px 0;"><b>Detection Confidence:</b> {confidence:.1f}%</p>
+                <p style="margin:2px 0;"><b>Weighted Detection Confidence:</b> {confidence*0.5:.1f}%</p>
             </div>
             """, unsafe_allow_html=True)
     #summary of model 2
             st.markdown(f"""
             <div class="metric-card">
-                <p style="color:#6c757d; font-size:13px; margin:0;">MODEL 2: Microclimate Risk Engine</p>
+                <p style="color:#6c757d; font-size:13px; margin:0;">Environmental risk score : Microclimate Risk Engine</p>
                 <p style="margin:4px 0 2px 0;"><b>Inputs:</b> {temperature}°C | {humidity}% RH | {rainfall:.1f} mm/d</p>
                 <p style="margin:2px 0 0 0;"><b>Environment Risk :</b> {r_env:.1f}%</p>
+                <p style="margin:2px 0 0 0;"><b>Weighted Environment Risk :</b> {r_env*0.5:.1f}%</p>
             </div>
             """, unsafe_allow_html=True)
     #summary of model 3
             card_class = "high-risk" if r_total >= 70 else ("med-risk" if r_total >= 45 else "low-risk")
             st.markdown(f"""
             <div class="metric-card {card_class}">
-                <p style="color:#6c757d; font-size:13px; margin:0;">MODEL 3: Fused Spread Risk of the detected disease</p>
+                <p style="color:#6c757d; font-size:13px; margin:0;">Disease Spread Risk : Fused (Detected confidence + Environment Risk) Spread Risk of the detected disease</p>
                 <h2 style="margin:4px 0; color:#111;">{r_total:.1f}%</h2>
-                <p style="margin:0; font-weight:600;">Status: {risk_label}</p>
+                <p style="margin:0; font-weight:800;">Status: {risk_label}</p>
             </div>
             """, unsafe_allow_html=True)
     #Preventive measures and actions
@@ -217,24 +224,21 @@ if run_pipeline:
 
 # Visual represenation through 2 graphs( Radar chart and horizontal Bar chart)
         st.markdown("---")
-        st.subheader("📊 Environmental & Diagnostic Breakdown")
-        graph_col1, graph_col2 = st.columns([1, 1])
-        with graph_col1:
+        st.subheader("📊 Diagnostic & Environmental Visual Breakdown")
 # GRAPH 1: Parameter Radar Chart
-            st.subheader("1. Parameter Sensitivity Radar")
-            categories = ['Temperature', 'Humidity', 'Rainfall', 'Vision Confidence']
-            values = [i_t * 100, i_h * 100, i_r * 100, confidence]
-            fig_radar = px.line_polar(r=values, theta=categories, line_close=True)
-            fig_radar.update_traces(fill='toself')
-            st.plotly_chart(fig_radar, use_container_width=True)
-        with graph_col2:
+        st.subheader("1. Parameter & Risk Radar Chart")
+        categories = [f'Temperature ({temperature:.1f}°C)', f'Humidity ({humidity:.1f}%)', f'Rainfall ({rainfall:.1f} mm/d)', f'CNN Confidence ({confidence:.1f}%)', f'Env Risk ({r_env:.1f}%)', f'Total Risk ({r_total:.1f}%)']
+        real_values = [temperature, humidity, rainfall, confidence, r_env, r_total]
+        fig_radar = px.line_polar(r=real_values, theta=categories, line_close=True)
+        fig_radar.update_traces(fill='toself')
+        st.plotly_chart(fig_radar, use_container_width=True)
 # GRAPH 2: Environmental Matrix 
-            st.subheader("2. Risk Weight Breakdown vs. Total Risk")
-            metrics_labels = ['Rainfall Effect', 'Temperature Effect', 'Humidity Effect', 'CNN Confidence', 'Final Risk Index']
-            metrics_vals = [i_r * 25.0, i_t * 35.0, i_h * 40.0, confidence * 0.5, r_total]
-            fig_bar = px.bar(x=metrics_vals, y=metrics_labels, orientation='h', labels={'x': 'Contribution Score (%)', 'y': 'Factor'}, color=metrics_labels)
-            fig_bar.update_layout(showlegend=False, xaxis_range=[0, 100])
-            st.plotly_chart(fig_bar, use_container_width=True)
+        st.subheader("2. Bar Chart visualization of Diagnostic & Environmental Factors")
+        metrics_labels = ['Rainfall Effect', 'Temperature Effect', 'Humidity Effect', 'Environmental Risk', 'CNN Confidence', 'Environmental Risk Weight', 'CNN Confidence weight', 'Final Risk Index']
+        metrics_vals = [rainfall, temperature, humidity, r_env, confidence, r_env*0.5, confidence*0.5, r_total]
+        fig_bar = px.bar(x=metrics_vals, y=metrics_labels, orientation='h', labels={'x': 'Values', 'y': 'Factor'}, color={'Rainfall Effect': '#2563eb', 'Temperature Effect': '#f97316', 'Humidity Effect': '#06b6d4', 'Environmental Risk': "#1de11d",'CNN Confidence': '#4f46e5', 'Environmental Risk Weight': "#2f951f",'CNN Confidence weight': '#a5b4fc', 'Final Risk Index': "#ef3535"}, color_discrete_map='identity')
+        fig_bar.update_layout(xaxis_title="Values", yaxis_title="Factors", showlegend=False)
+        st.plotly_chart(fig_bar, use_container_width=True)
 
     else:
         st.warning("⚠️ Please upload a leaf image in the left panel to execute diagnosis.")
